@@ -1,0 +1,8 @@
+README
+
+
+tested no transfer model on with transfer simulated data
+
+set each child lambda to 0.01
+
+trained on 1k samples and tested on 9k

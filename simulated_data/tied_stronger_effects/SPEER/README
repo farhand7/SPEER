@@ -1,0 +1,8 @@
+simulated transfer learning model
+
+brain: 4, group1: 5, muscle: 6, epithelial: 7, digestive: 8
+alpha = 0.01
+
+p(z|g) in simulation is bimodal (close to 0 and close to 1)
+
+ran transfer learning model with same params as above using 10% of the data for training (1k samples) tested on 9k samples

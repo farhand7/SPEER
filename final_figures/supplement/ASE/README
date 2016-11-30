@@ -1,0 +1,6 @@
+ase_aggregate_2.0_threshold
+	uses:
+		train : 11.17.16.gtex_data_2.0_threshold/train
+		beta_river: 11.19.run_2.0_threshold_5_observed/beta_children
+		phi: same as above
+		
