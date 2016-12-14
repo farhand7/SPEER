@@ -1,4 +1,4 @@
 # SPEER
-SPEER is a framework for predicting the tissue-specific effects of rare variants
+SPEER is a framework for predicting the tissue-specific effects of rare genetic variants.
 
-Will be available by 12/5.
+See src/network.py for details on the SPEER algorithm.
