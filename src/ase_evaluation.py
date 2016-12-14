@@ -16,7 +16,7 @@ from scipy import stats
 
 class ASE_Evaluation:
 
-    def __init__(self, train_list, ase_path, tissue_groups, models=None, posterior_percentile_thresholds=[.6, .7, .8, .9])
+    def __init__(self, train_list, ase_path, tissue_groups, models=None, posterior_percentile_thresholds=[.6, .7, .8, .9]):
         '''
             train_list : list
                 List of tissue-specific training matrices

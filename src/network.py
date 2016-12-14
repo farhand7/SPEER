@@ -1,24 +1,14 @@
 #!/usr/bin/env
 __author__ = 'farhan_damani'
 
-import numpy as np
-import scipy.stats
-import random
-import os
-import naive_bayes as nb
-import logistic_regression as lr
-import sys
-import sklearn.linear_model
-import sklearn
 import copy
+import logistic_regression as lr
+import naive_bayes as nb
+import numpy as np
+import os
 import pandas as pd
-import timeit
-import time
-import matplotlib.pyplot as plt
-from sklearn.metrics import roc_curve, auc
+import sklearn
 import sys
-import likelihood as ll
-
 
 class Network:
 
@@ -64,29 +54,45 @@ class Network:
         self.genomic_features = genomic_features
         
         if lambda_hp_parent == None:
-            self.lambda_hp_parent = 4.333047702488766
+            #self.lambda_hp_parent = 4.333047702488766
+            self.lambda_hp_parent = 0.01
         else:
             self.lambda_hp_parent = lambda_hp_parent
         
         if lambda_hp_children_dict == None:
-            self.lambda_hp_children_dict = {'Brain': 0.562229, 'group1': 0.75696656, 'Muscle': 1.51665066, 'Epithelial': 2.22486734, 'Digestive': 5.17309994}
-        
+            #self.lambda_hp_children_dict = {'Brain': 0.562229, 'group1': 0.75696656, 'Muscle': 1.51665066, 'Epithelial': 2.22486734, 'Digestive': 5.17309994}
+            #self.lambda_hp_children_dict = {'brain': 0.562229, 'group1': 0.75696656, 'muscle': 1.51665066, 'epithelial': 2.22486734, 'digestive': 5.17309994}
+            #self.lambda_hp_children_dict = {'brain': 0.01, 'group1': 0.01, 'muscle': 0.01, 'epithelial': 0.01, 'digestive': 0.01}
+            self.lambda_hp_children_dict = {'brain': 4, 'group1': 5, 'muscle': 6, 'epithelial': 7, 'digestive': 8}
+
+
+
         else:
             self.lambda_hp_children_dict = lambda_hp_children_dict
 
         # SPEER vs SPEER w/o transfer (True or False)
         self.with_transfer = with_transfer
 
+        if self.with_transfer:
+            self.model = 'SPEER'
+        else:
+            self.model = 'SPEER without transfer'
+
         if e_distribution == None:
             # check if training data contains eqtl column
             if 'eqtl' in self.train_list[0].columns:
                 self.e_distribution = 'noisyor'
-                self.phi = np.zeros(2)
+                #self.phi = np.zeros(2)
             else:
                 self.e_distribution = 'cat'
-                self.phi = np.zeros((2,2))
+                #self.phi = np.zeros((2,2))
         else:
             self.e_distribution = e_distribution
+        
+        if self.e_distribution == 'noisyor':
+            self.phi = np.zeros(2)
+        else:
+            self.phi = np.zeros((2,2))
 
 
         self.num_tissues = len(self.train_list)
@@ -101,7 +107,8 @@ class Network:
         self.lambda_hp_children = []
         # based on ordering of processed tissues, create list of tissue-specific transfer factors
         for i in range(self.num_tissues):
-            self.lambda_hp_children[i] = self.lambda_hp_children_dict[self.train_list[i].iloc[0]["tissue"]]
+            #self.lambda_hp_children[i] = self.lambda_hp_children_dict[self.train_list[i].iloc[0]["tissue"]]
+            self.lambda_hp_children.append(self.lambda_hp_children_dict[self.train_list[i].iloc[0]["tissue"]])
         
         # create directory for output
         if output_dir == None:
@@ -121,7 +128,7 @@ class Network:
         # initialize betas and phi from prior knowledge
         self.initializeParameters()
         while True:
-            print('EM iter: ', iter)
+            #print('EM iter: ', iter)
             beta_children_old, beta_parent_old, phi_old = copy.copy(self.beta_children), copy.copy(self.beta_parent), copy.copy(self.phi)
             # E-step
             self.eStepGlobal()
@@ -129,7 +136,7 @@ class Network:
             self.mStep()
             # compute norm of new-old params
             beta_norm, phi_norm = self.computeBetaDiffNorm(beta_children_old, beta_parent_old), self.computePhiDiffNorm(phi_old)
-            print('beta: ', beta_norm, 'phi: ', phi_norm)
+            #print('beta: ', beta_norm, 'phi: ', phi_norm)
             
             # convergence check
             if (np.abs(beta_norm) < 1e-3 and np.abs(phi_norm) < 1e-3):              
@@ -146,7 +153,7 @@ class Network:
     def _write_to_file(self):
 
         for i in range(self.num_tissues):
-            tissue = train_list[0]["tissue"].iloc[0]
+            tissue = self.train_list[0]["tissue"].iloc[0]
             self.train_list[i].to_csv(self.directory + '/train_' + tissue + '.csv')
             self.test_list[i].to_csv(self.directory + '/test_' + tissue + '.csv')
 
@@ -215,14 +222,14 @@ class Network:
             E Step for each tissue
         '''
         for i in range(self.num_tissues):
-            self.train_list[i]['posterior'] = self.eStepLocal(i, self.train_list[i], self.getBetaLeaf(i), self.phi)
+            self.train_list[i][self.model] = self.eStepLocal(i, self.train_list[i], self.getBetaLeaf(i), self.phi)
 
     def eStepGlobalTest(self):
         '''
             P(z | test data)
         '''
         for i in range(self.num_test_tissues):
-            self.test_list[i]['posterior'] = self.eStepLocal(i, self.test_list[i], self.getBetaLeaf(i), self.phi)
+            self.test_list[i][self.model] = self.eStepLocal(i, self.test_list[i], self.getBetaLeaf(i), self.phi)
 
     def eStepLocal(self, i, data, beta, phi):
         '''
@@ -272,7 +279,7 @@ class Network:
 
     def _gradient_descent(self):
         for i in range(self.num_tissues):
-            self.beta_children[i] = lr.sgd(self.train_list[i][self.genomic_features].values, self.train_list[i]['posterior'].values, 
+            self.beta_children[i] = lr.sgd(self.train_list[i][self.genomic_features].values, self.train_list[i][self.model].values, 
                 self.getBetaLeaf(i), self.beta_parent, self.lambda_hp_children[i])
    
     def _blocked_coordinate_gradient_descent(self):
@@ -313,9 +320,9 @@ class Network:
         x = 0
         for i in range(self.num_tissues):
             if self.e_distribution == 'noisyor':
-                x += nb.estimate_params_noisyor_2_params(self.train_list[i]['expr_label'], self.train_list[i]['posterior'], self.train_list[i]['eqtl'])
+                x += nb.estimate_params_noisyor_2_params(self.train_list[i]['expr_label'], self.train_list[i][self.model], self.train_list[i]['eqtl'])
             else:
-                x += nb.estimate_params(self.train_list[i]['posterior'].values, self.train_list[i]['expr_label'].values)
+                x += nb.estimate_params(self.train_list[i][self.model].values, self.train_list[i]['expr_label'].values)
         self.phi = x / float(self.num_tissues)
     
     def l1norm(self, a, b):

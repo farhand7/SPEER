@@ -2,6 +2,7 @@ pipeline using simulated data
 
 
 - set parameters for simulated data and generate it
+
 - run speer
 	- saves and returns parameters and posteriors (posteriors is added as a column to individual training matrices one for each tissue)
 - run benchmarks

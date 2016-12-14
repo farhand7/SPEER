@@ -12,7 +12,7 @@ import logistic_regression as lr
 from sklearn import metrics
 from sklearn import preprocessing
 
-class CrossValidation:
+class Cross_Validation:
 
 	def __init__(self, train_list, genomic_features, num_folds=None):
 		'''

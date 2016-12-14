@@ -39,9 +39,9 @@ class Bootstrap:
 		# simulate each dataset 
 		bootstrap_data = [self.bootstrap_resample(X) for X in self.train_list]
 		# cross-validate using bootstrapped data
-		#cv = cross_valid.Cross_Validation(bootstrap_data, self.num_folds, self.genomic_features)
-		#self.optimal_lambdas = cv._run_cross_validation()
-		self.optimal_lambdas = [1,1,1,1,1]
+		cv = cross_valid.Cross_Validation(bootstrap_data, self.genomic_features, self.num_folds)
+		self.optimal_lambdas = cv._run_cross_validation()
+		#self.optimal_lambdas = [1,1,1,1,1]
 
 	def bootstrap_resample(self, X, n=None):
 		""" 
@@ -136,7 +136,7 @@ class Bootstrap:
 		
 		# mapping from tissue to estimated transfer factor
 		lambda_hp_children_dict = {}
-		for i,tissue in enumuerate(tissues):
+		for i,tissue in enumerate(self.tissues):
 			lambda_hp_children_dict[tissue] = lambda_hp_children[i]
 
 		return lambda_hp_children_dict, lambda_hp_parent
