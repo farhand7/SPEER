@@ -45,7 +45,6 @@ class Network:
                 Distribution on e can be either 'cat' or 'noisyor'. If the option is 'cat', then we use a categorical distribution
                 If the option is 'noisyor', we use a Noisy Or distribution. If neither are specified, we use a NoisyOr if e has at least
                 two parent variables (e.g. r and eqtl). If e has only one parent variable, we use a categorical distribution.
-
         '''
 
         self.train_list = train_list
@@ -65,8 +64,6 @@ class Network:
             #self.lambda_hp_children_dict = {'brain': 0.01, 'group1': 0.01, 'muscle': 0.01, 'epithelial': 0.01, 'digestive': 0.01}
             self.lambda_hp_children_dict = {'brain': 4, 'group1': 5, 'muscle': 6, 'epithelial': 7, 'digestive': 8}
 
-
-
         else:
             self.lambda_hp_children_dict = lambda_hp_children_dict
 
@@ -82,10 +79,8 @@ class Network:
             # check if training data contains eqtl column
             if 'eqtl' in self.train_list[0].columns:
                 self.e_distribution = 'noisyor'
-                #self.phi = np.zeros(2)
             else:
                 self.e_distribution = 'cat'
-                #self.phi = np.zeros((2,2))
         else:
             self.e_distribution = e_distribution
         
@@ -107,7 +102,6 @@ class Network:
         self.lambda_hp_children = []
         # based on ordering of processed tissues, create list of tissue-specific transfer factors
         for i in range(self.num_tissues):
-            #self.lambda_hp_children[i] = self.lambda_hp_children_dict[self.train_list[i].iloc[0]["tissue"]]
             self.lambda_hp_children.append(self.lambda_hp_children_dict[self.train_list[i].iloc[0]["tissue"]])
         
         # create directory for output
@@ -130,10 +124,13 @@ class Network:
         while True:
             #print('EM iter: ', iter)
             beta_children_old, beta_parent_old, phi_old = copy.copy(self.beta_children), copy.copy(self.beta_parent), copy.copy(self.phi)
+            
             # E-step
             self.eStepGlobal()
+            
             # M-step
             self.mStep()
+            
             # compute norm of new-old params
             beta_norm, phi_norm = self.computeBetaDiffNorm(beta_children_old, beta_parent_old), self.computePhiDiffNorm(phi_old)
             #print('beta: ', beta_norm, 'phi: ', phi_norm)
@@ -234,6 +231,19 @@ class Network:
     def eStepLocal(self, i, data, beta, phi):
         '''
            Compute p(z | ...) for tissue i
+
+            i : int
+                tissue index
+
+            data : panda data frame
+                core data structure containing genomic features, expression, updated posteriors.
+
+            beta : numpy array : 1 x M
+                coefficients for genomic features
+
+            phi : numpy array
+                either 2 x 2 numpy array for categorical distribution or 1 x 2 for noisy or
+
         '''
         # log p(z | g)
         log_prob_z_1_given_g = lr.log_prob(data[self.genomic_features].values, beta)        
@@ -284,7 +294,7 @@ class Network:
    
     def _blocked_coordinate_gradient_descent(self):
         '''
-            Beta estimation using coordinate gradient ascent
+            Beta and alpha estimation using coordinate gradient descent
         '''
         while True:
 
@@ -314,7 +324,7 @@ class Network:
 
     def estimatePhis(self):
         '''
-            Phi estimation.
+            Phi estimation using NoisyOr or Categorical distribution.
         '''
 
         x = 0

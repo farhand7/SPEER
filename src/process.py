@@ -40,11 +40,11 @@ class Process:
 		self.test_list = []
 
 		# genomic annotations - data already includes intercept term
-		self.g = pd.read_csv(self.input_dir + '/g.csv', index_col=None, header=None)
+		self.g = pd.read_csv(self.input_dir + 'g.csv', index_col=None, header=None)
 		# expression data - columns indicate tissue groups
-		self.e_labels = pd.read_csv(self.input_dir + '/e.csv', index_col=(0))
+		self.e_labels = pd.read_csv(self.input_dir + 'e.csv', index_col=(0))
 		# z labels
-		self.z_labels = pd.read_csv(self.input_dir + '/z.csv', index_col=(0))
+		self.z_labels = pd.read_csv(self.input_dir + 'z.csv', index_col=(0))
 		# sanity check
 		assert(len(self.g) == len(self.e_labels))
 		assert(len(self.e_labels) == len(self.z_labels))
@@ -155,6 +155,7 @@ class Process:
 			# add posterior columns
 			train["SPEER"] = -1
 			train["SPEER without transfer"] = -1
+			train["RIVER"] = -1
 			train["shared tissue genome only"] = -1
 			train["tissue specific genome only"] = -1
 			train["tissue"] = str(tissue)

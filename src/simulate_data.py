@@ -193,9 +193,25 @@ class SimulateData:
 
 	def _run(self):
 		if self.model_type == 'with_transfer':
-			e, g, z, betas, phi = self._simulate_multitask_with_transfer()
+			while True:
+				e, g, z, betas, phi = self._simulate_multitask_with_transfer()
+				x = 0
+				for col in z.columns: x+=np.count_nonzero(z[col]) / len(z[col])
+				x /= 5
+				if x >= 0.1 and x <= 0.9: break
 		elif self.model_type == 'without_transfer':
-			e, g, z, betas, phi = self._simulate_multitask_no_transfer()
+			while True:
+				isValid = True
+				e, g, z, betas, phi = self._simulate_multitask_no_transfer()
+				x = []
+				for col in z.columns: 
+					x.append(np.count_nonzero(z[col]) / len(z[col]))
+				for num in x:
+					if num <= 0.01 and num >= 0.99:
+						isValid = False
+						break
+				if isValid:
+					break
 		else:
 			print("ERROR: enter with_transfer or without_transfer")
 
@@ -203,19 +219,20 @@ class SimulateData:
 		if not os.path.isdir(self.output_dir):
 			os.makedirs(self.output_dir)
 		# write to file
-		np.savetxt(self.output_dir + "/g.csv", g, delimiter=",")
-		e.to_csv(self.output_dir + "/e.csv")
-		z.to_csv(self.output_dir + "/z.csv")
-		betas.to_csv(self.output_dir + "/betas.csv")
-		np.savetxt(self.output_dir + "/phi.txt", phi)
-
+		np.savetxt(self.output_dir + "g.csv", g, delimiter=",")
+		e.to_csv(self.output_dir + "e.csv")
+		z.to_csv(self.output_dir + "z.csv")
+		betas.to_csv(self.output_dir + "betas.csv")
+		np.savetxt(self.output_dir + "phi.txt", phi)
+'''
 if __name__ == "__main__":
-	'''
+	
 		Example:
 		SimulateData("./simulation_output/", 'with_transfer', 0.4, 0.6, 0.1)
-	'''
+	
 	simulate_with_transfer = SimulateData("./hi2_with_transfer/", 'with_transfer', 0.4, 0.6, 0.1)
 	simulate_without_transfer = SimulateData("./hi2_without_transfer/", 'without_transfer', 0.4, 0.6, 0.1)
 
 	simulate_with_transfer._run()
 	simulate_without_transfer._run()
+'''
