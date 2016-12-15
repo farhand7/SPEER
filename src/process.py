@@ -2,9 +2,39 @@
 __author__ = 'farhan_damani'
 
 '''
-	Processes data and creates training matrices used as input to SPEER model.
+	Processes data and creates data structure used as input to SPEER model.
 
-	**confirm this works**
+	This script takes in an input directory and identifies the following files in the folder:
+		1. e.csv - expression data
+		2. g.csv - genomic annotations
+		3. z.csv - z labels (if using simulated data)
+
+
+	This script creates the following data structure:
+
+		1. train_list and test_list: list of M data frames, where M = # of tissues
+
+			Data frame i:
+				columns:
+
+					subject id
+					gene id
+					intercept
+					genomic feature_1, ..., genomic feature_N
+					expression label
+					median expression label
+					z label
+					median z label
+					SPEER
+					SPEER without transfer
+					RIVER
+					shared tissue genome only
+					tissue specific genome only
+					tissue
+		
+		2. tissues: a list of tissues
+
+		3. genomic features: a list of genomic features used
 
 '''
 import sklearn

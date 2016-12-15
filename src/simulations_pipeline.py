@@ -1,3 +1,34 @@
+'''
+	Complete pipeline to generate ROC curves using simulated data.
+
+	Repeat N times (where N is number of simulations):
+
+		1. Simulate data using one of the six parameter settings described in the paper
+			'tied_stronger'
+			'tied_equal'
+			'tied_weaker'
+			'independent_stronger'
+			'independent_equal'
+			'independent_weaker'
+		
+		2. Create a process object using simulated data
+			the process object creates the core data structure that is used when running SPEER.
+
+		3. Run SPEER (network.py)
+
+		4. Run various benchmarks for comparison
+			SPEER without transfer (network.py)
+			RIVER (RIVER.py)
+			tissue specific genome only (benchmark_posteriors.py)
+			shared tissue genome only (benchmark_posteriors.py)
+
+		5. Save averaged false positive rate and true positive rate across various thresholds in order to generate plots
+
+	Running this script via command line:
+		python simulations_pipeline.py <simulation setting> <number of simulations>
+		example: python simulations_pipeline.py tied_stronger 75
+'''
+
 import pandas as pd
 import numpy as np
 
@@ -18,37 +49,6 @@ import sklearn
 import RIVER as river
 import pickle
 import sys
-
-'''
-	Complete pipeline to generate ROC curves using simulated data.
-
-	Repeat N times (where N is number of simulations):
-
-		1. Simulate data using one of the six settings described in the paper
-			'tied_stronger'
-			'tied_equal'
-			'tied_weaker'
-			'independent_stronger'
-			'independent_equal'
-			'independent_weaker'
-		
-		2. Create a process object using simulated data
-			the process object creates the core data structure that is used when running SPEER.
-
-		3. Run SPEER
-
-		4. Run various benchmarks for comparision
-			SPEER without transfer
-			RIVER
-			tissue specific genome only
-			shared tissue genome only
-
-		5. Save averaged false positive rate and true positive rate across various thresholds in order to generate plots
-
-	Running this script via command line:
-		python simulations_pipeline.py <simulation setting> <number of simulations>
-		example: python simulations_pipeline.py tied_stronger 75
-'''
 
 setting = str(sys.argv[1])
 print(setting)

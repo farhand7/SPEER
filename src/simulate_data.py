@@ -1,7 +1,8 @@
 #!/usr/bin/env
 __author__ = 'farhan_damani'
 '''
-	Generate simulated data
+	Simulate data from SPEER
+
 '''
 import pandas as pd
 import numpy as np
@@ -148,7 +149,7 @@ class SimulateData:
 			betas.append(beta)
 			# compute p(z | g, beta)
 			p_z_given_g = self._compute_p_z_given_g(beta, g)
-			plt.hist(p_z_given_g)
+			#plt.hist(p_z_given_g)
 			# generate z given p(z|g)
 			z_draws = np.random.binomial(1, p_z_given_g)
 			z[tissue] = z_draws
@@ -179,7 +180,7 @@ class SimulateData:
 			betas.append(beta)
 			# compute p(z | g, beta)
 			p_z_given_g = self._compute_p_z_given_g(beta, g)
-			plt.hist(p_z_given_g)
+			#plt.hist(p_z_given_g)
 			# generate z given p(z|g)
 			z_draws = np.random.binomial(1, p_z_given_g)
 			z[tissue] = z_draws
