@@ -1,6 +1,6 @@
-draft_notebooks/*
-final_figures/draft*
+draft_notebooks/
+final_figures/
 .DS_Store
-__pycache__
 .ipynb_checkpoints
 *.obj
+__pycache__/

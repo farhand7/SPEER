@@ -208,7 +208,7 @@ class SimulateData:
 				for col in z.columns: 
 					x.append(np.count_nonzero(z[col]) / len(z[col]))
 				for num in x:
-					if num <= 0.01 and num >= 0.99:
+					if num <= 0.01 or num >= 0.99:
 						isValid = False
 						break
 				if isValid:
