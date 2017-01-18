@@ -158,3 +158,41 @@ with open('mean_fpr_' + setting + '.obj', 'wb') as fp:
 	pickle.dump(mean_fpr, fp)
 with open('mean_auc_' + setting + '.obj', 'wb') as fp:
 	pickle.dump(mean_auc, fp)
+
+# plot
+current_palette = sns.color_palette()
+fig = plt.figure(figsize=(10,10))
+colors = ['blue', 'yellow', 'green', 'red', 'purple']
+for ind,model in enumerate(models):
+    mean_tpr_global = 0.0
+    mean_fpr_global = np.linspace(0,1,100)
+    for i in range(num_sims):
+        fpr = mean_fpr[model][i]
+        tpr = mean_tpr[model][i]
+        ax = plt.plot(fpr, tpr, linewidth=0.05, c=current_palette[ind])
+
+        
+        mean_tpr_global += interp(mean_fpr_global, fpr, tpr)
+        mean_tpr_global[0] = 0.0
+        
+    mean_tpr_global /= num_sims
+    mean_tpr_global[-1] = 1.0
+    auc_global = sklearn.metrics.auc(mean_fpr_global, mean_tpr_global)
+    ax = plt.plot(mean_fpr_global, mean_tpr_global, label=model + ' {0:0.3f}'
+              ''.format(auc_global), linewidth=3.0, c=current_palette[ind])
+
+ax = plt.plot([0,1], [0,1], 'k--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate', fontsize=20)
+sns.set_context("talk")
+sns.set_palette("deep")
+sns.set(font='serif')
+sns.set_style("white", {"font.family": "serif", "font.serif": ["Times", "Palatino", "serif"]})
+#ax.spines['top'].set_visible(False)
+#ax.spines['right'].set_visible(False)
+plt.ylabel('True Positive Rate', fontsize=20)
+#plt.title('Receiver operating characteristic')
+plt.legend(loc="lower right", frameon=False, prop={'size':16})
+plt.tight_layout()
+plt.savefig(model_type + '_effects_roc.png', format='png', dpi=200)
