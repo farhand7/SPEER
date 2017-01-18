@@ -21,3 +21,7 @@ For details on the SPEER algorithm, see
 ```
 src/SPEER.py
 ```
+To reproduce ROC curves using simulated data for all three settings described in the paper, see
+```
+src/simulate_data.py
+```
